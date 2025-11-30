@@ -38,6 +38,12 @@ surface is the `hello()` greeting exported from `hv_utils.__init__`.
     - `uv run --python 3.13 pytest`
     - `uv run --python 3.14 pytest`
 
+## Changelog
+
+- Generate/update `CHANGELOG.md` from conventional commits with git-cliff (dev dependency):
+  - Preview unreleased notes: `uv run --locked --group dev git-cliff --config pyproject.toml --unreleased`
+  - Write the changelog file: `uv run --locked --group dev git-cliff --config pyproject.toml --unreleased --output CHANGELOG.md`
+
 ## Pre-commit
 
 - Install hooks: `pre-commit install` (uses your machine-level pre-commit)

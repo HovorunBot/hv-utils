@@ -29,11 +29,12 @@ Issues = "https://github.com/HovorunBot/hv-utils/issues"
 [dependency-groups]
 dev = [
     "click>=8.1.7",
+    "git-cliff>=2.10.1",
     "mypy>=1.12.0",
     "pre-commit>=3.8.0",
     "pytest>=8.3.3",
     "pytest-cov>=5.0.0",
-    "ruff>=0.7.1"
+    "ruff>=0.7.1",
 ]
 
 [build-system]
@@ -80,3 +81,81 @@ source = ["hv_utils"]
 
 [tool.coverage.report]
 show_missing = true
+
+[tool.git-cliff.changelog]
+header = "# Changelog\n"
+body = """
+{% set main_author = config.changelog.main_author | default(value="TwilightSparkle42") %}
+{% set repo = "https://github.com/HovorunBot/hv-utils" %}
+{% if versions is defined %}{% for version in versions %}
+## {{ version.tag | default(value="Unreleased") }} - {{ version.date | default(value="Unreleased") }}
+{% if version.commits | length == 0 %}- No notable changes.{% else %}{% for group, grouped_commits in version.commits | group_by(attribute="group") %}
+### {{ group | default(value="Other") }}
+{% for commit in grouped_commits %}- {{ commit.message | split(pat="\\n") | first }} [[{{ commit.id | truncate(length=8, end="") }}]({{ repo }}/commit/{{ commit.id }})]{% if commit.author.name and commit.author.name != main_author %} — by {{ commit.author.name }}{% endif %}
+{% endfor %}{% endfor %}{% endif %}
+{% endfor %}{% else %}
+## Unreleased
+{% for group, grouped_commits in commits | group_by(attribute="group") %}
+### {{ group | default(value="Other") }}
+{% for commit in grouped_commits %}- {{ commit.message | split(pat="\\n") | first }} [[{{ commit.id | truncate(length=8, end="") }}]({{ repo }}/commit/{{ commit.id }})]{% if commit.author.name and commit.author.name != main_author %} — by {{ commit.author.name }}{% endif %}
+{% endfor %}{% endfor %}
+{% endif %}
+"""
+trim = true
+footer = "\n"
+
+[tool.git-cliff.git]
+conventional_commits = true
+filter_unmapped = true
+tag_pattern = "v[0-9].*"
+protect_tags = false
+skip_tags = ""
+repository = "https://github.com/HovorunBot/hv-utils"
+main_author = "TwilightSparkle42"
+
+[[tool.git-cliff.git.commit_parsers]]
+message = "^feat"
+group = "Features"
+
+[[tool.git-cliff.git.commit_parsers]]
+message = "^fix"
+group = "Bug Fixes"
+
+[[tool.git-cliff.git.commit_parsers]]
+message = "^docs"
+group = "Documentation"
+
+[[tool.git-cliff.git.commit_parsers]]
+message = "^style"
+group = "Style"
+
+[[tool.git-cliff.git.commit_parsers]]
+message = "^refactor"
+group = "Refactoring"
+
+[[tool.git-cliff.git.commit_parsers]]
+message = "^perf"
+group = "Performance"
+
+[[tool.git-cliff.git.commit_parsers]]
+message = "^test"
+group = "Tests"
+
+[[tool.git-cliff.git.commit_parsers]]
+message = "^build"
+group = "Build"
+
+[[tool.git-cliff.git.commit_parsers]]
+message = "^ci"
+group = "CI"
+
+[[tool.git-cliff.git.commit_parsers]]
+message = "^chore"
+group = "Chores"
+
+[[tool.git-cliff.git.commit_parsers]]
+message = "^revert"
+group = "Reverts"
+
+[tool.git-cliff.bump]
+initial_tag = "v0.1.0"

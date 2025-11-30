@@ -6,6 +6,11 @@ repos:
         entry: uv run --locked --group dev python -m tools.copyright_header
         language: system
         pass_filenames: false
+      - id: changelog
+        name: changelog (git-cliff)
+        entry: uv run --locked --group dev git-cliff --config pyproject.toml --unreleased --output CHANGELOG.md
+        language: system
+        pass_filenames: false
       - id: format
         name: format (ruff)
         entry: uv run --locked --group dev ruff format .
@@ -18,7 +23,7 @@ repos:
         pass_filenames: false
       - id: mypy
         name: mypy
-        entry: uv run --locked --group dev mypy src tests
+        entry: uv run --locked --group dev mypy --cache-dir .mypy_cache src tests
         language: system
         pass_filenames: false
       - id: tests-py312
@@ -41,3 +46,8 @@ repos:
         language: system
         entry: uv sync --locked --python 3.12
         pass_filenames: false
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.1.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
