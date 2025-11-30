@@ -65,5 +65,6 @@ jobs:
           name: "Release ${{ github.ref_name }}"
           body_path: RELEASE_NOTES.md
           files: dist/*
+          make_latest: false
         env:
           GITHUB_TOKEN: ${{ env.RELEASE_TOKEN }}
