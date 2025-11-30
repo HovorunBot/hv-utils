@@ -44,6 +44,7 @@ build-backend = "uv_build"
 line-length = 120
 target-version = "py312"
 src = ["src"]
+preview = true
 
 [tool.ruff.lint]
 select = ["ALL"]
@@ -51,15 +52,19 @@ ignore = [
     "ANN101", # allow self without annotation
     "ANN102", # allow cls without annotation
     "COM812", # clash with formatter
-    "D100",   # allow missing package docstring
-    "D104",   # allow missing package docstring
+    "D100", # allow missing package docstring
+    "D104", # allow missing package docstring
     "ISC001" # clash with formatter
 ]
+extend-select = ["CPY"]
+
+[tool.ruff.lint.flake8-copyright]
+notice-rgx = "Copyright \\(c\\) [0-9]{4}"
 
 [tool.mypy]
 python_version = "3.12"
 strict = true
-mypy_path = "src"
+mypy_path = "."
 disallow_any_unimported = true
 show_error_codes = true
 show_error_context = true

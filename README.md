@@ -42,7 +42,7 @@ surface is the `hello()` greeting exported from `hv_utils.__init__`.
 
 - Install hooks: `pre-commit install` (uses your machine-level pre-commit)
 - Run all hooks manually: `pre-commit run --all-files`
-- Hooks run the same uv-powered format, lint, type-check, and test commands listed above.
+- Hooks auto-add the BSD-3 header (via `python -m tools.copyright_header`), then run the same uv-powered format, lint, type-check, and test commands listed above.
 
 ## Contributing
 

@@ -59,6 +59,9 @@ The following constraints are **non-negotiable** and govern all generated code a
     * **Public Exposure:** The package's **`__init__.py`** file must expose all public interfaces. Other modules
       importing utilities **must** import exclusively from the package's top-level public interface (i.e.,
       `from hv_utils.package import utility`).
+    * **Tooling Scripts:** Repository maintenance/automation helpers live in the root-level `tools/` package and
+      should be invoked via `python -m tools.<module>`. Keep them standard-library only, fully typed, and using
+      absolute imports.
 
 * **Testing (TDD Workflow):**
     * **TDD Enforcement:** The agent **must** start with test cases for the target logic. If the agent is unsure of the
