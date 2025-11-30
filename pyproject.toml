@@ -21,6 +21,10 @@ classifiers = [
 ]
 dependencies = []
 
+[project.optional-dependencies]
+cron = []
+all = []
+
 [project.urls]
 Homepage = "https://github.com/HovorunBot/hv-utils"
 Repository = "https://github.com/HovorunBot/hv-utils"
@@ -50,14 +54,19 @@ preview = true
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "ANN101", # allow self without annotation
-    "ANN102", # allow cls without annotation
     "COM812", # clash with formatter
     "D100", # allow missing package docstring
+    "D213", # prefer multi-line summary first line style
     "D104", # allow missing package docstring
+    "D203", # prefer no blank line before class
+    "D211", # prefer no blank line before class
     "ISC001" # clash with formatter
 ]
 extend-select = ["CPY"]
+
+per-file-ignores = { "tests/*" = [
+    "S101"  # S101: allow ``assert`` in tests
+] }
 
 [tool.ruff.lint.flake8-copyright]
 notice-rgx = "Copyright \\(c\\) [0-9]{4}"

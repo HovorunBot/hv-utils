@@ -38,6 +38,7 @@ The following constraints are **non-negotiable** and govern all generated code a
     * **Encoding & Localization:** All string processing and I/O operations must assume and handle **UTF-8 encoding** by
       default. Use UTF-16 only if the utility's specific goal requires interaction with a system or protocol explicitly
       standardized on UTF-16.
+    * All new Python files must start with the project’s BSD 3-Clause copyright header (Ruff CPY check enforced).
 
 * **Documentation & Comments:**
     * Use **Google-style docstrings** focused on *algorithms* and *purpose* for public interfaces and complex logic.

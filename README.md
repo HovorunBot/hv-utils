@@ -1,7 +1,7 @@
 # hv-utils
 
 Typed utility library for consolidating reusable Python helpers. The project is in early alpha; the current public
-surface is the `hello()` greeting exported from `hv_utils.__init__`.
+surface includes the cron expression parser (`parse_cron`) exported from `hv_utils.__init__`.
 
 ## What you need
 
@@ -13,7 +13,27 @@ surface is the `hello()` greeting exported from `hv_utils.__init__`.
 
 - Install dev tools: `uv sync --group dev`
 - Ensure you work from the repo root so `src/` is discoverable.
-- Try it out: `uv run python -c "from hv_utils import hello; print(hello())"`
+- Try it out:
+    - Cron parse: `uv run python - <<'PY'\nfrom hv_utils import parse_cron\nprint(parse_cron('*/15 0-12/6 1,15 1-3 MON-FRI'))\nPY`
+    - Cron match: `uv run python - <<'PY'\nfrom datetime import UTC, datetime\nfrom hv_utils import cron_matches\nprint(cron_matches('0 12 15 * 1', datetime(2025, 1, 13, 12, 0, tzinfo=UTC)))\nPY`
+- Extras: install cron utilities via `pip install hv-utils[cron]` (or `hv-utils[all]` for all extras; currently the same set).
+
+## Cron utility
+
+- Parse: `hv_utils.parse_cron(expression: str) -> CronSchedule` — expands a 5-field cron string into concrete minute,
+  hour, day-of-month, month, and day-of-week tuples. Supports literals, ranges, steps (`*/n`), comma lists, and
+  case-insensitive month/day names. Day-of-week treats both `0` and `7` as Sunday; invalid input raises `ValueError`
+  with a consistent message.
+- Match: `hv_utils.cron_matches(expression: str | CronSchedule, when: datetime) -> bool` — checks whether a datetime
+  satisfies a schedule. Day-of-month and day-of-week use cron OR semantics: if both are restricted, a match occurs when
+  either field matches (all other fields must also match). If one is a wildcard, only the other is considered.
+- Schedule helpers:
+    - `CronSchedule.from_exp(expr: str)` — convenience constructor around `parse_cron`.
+    - `CronSchedule.matches(dt: datetime) -> bool` — instance wrapper over `cron_matches`.
+    - `CronSchedule.next(start: datetime, *, inclusive: bool = False, max_lookahead_days: int = 366) -> datetime` —
+      returns the next occurrence after `start`, optionally including `start`, bounded by `max_lookahead_days`.
+    - `CronSchedule.iter(start: datetime, *, inclusive: bool = False, max_lookahead_days: int = 366) -> Iterable[datetime]`
+      — yields successive matching datetimes; callers should consume responsibly to avoid unbounded iteration.
 
 ## How we work
 

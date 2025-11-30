@@ -9,16 +9,6 @@
 #     - TwilightSparkle42 — general maintenance
 # -----------------------------------------------------------------------------
 
-"""Core utilities exposed by the hv-utils package."""
+__all__ = ("CronSchedule", "cron_matches", "parse_cron")
 
-__all__ = ["hello"]
-
-
-def hello() -> str:
-    """Return a friendly greeting from hv-utils.
-
-    Returns:
-        str: Friendly greeting message.
-
-    """
-    return "Hello from hv-utils!"
+from hv_utils.cron import CronSchedule, cron_matches, parse_cron

@@ -9,8 +9,6 @@
 #     - TwilightSparkle42 — general maintenance
 # -----------------------------------------------------------------------------
 
-# ruff: noqa: S101
-
 from pathlib import Path
 
 from tools.copyright_header import HeaderConfig, apply_header, build_header
