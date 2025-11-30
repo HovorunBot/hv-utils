@@ -1,6 +1,6 @@
 [project]
 name = "hv-utils"
-version = "0.0.0.dev1"
+version = "0.0.1"
 description = "Simple library to keep useful Python utilities in one place."
 readme = "README.md"
 license = { file = "LICENSE" }

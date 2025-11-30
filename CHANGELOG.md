@@ -5,7 +5,7 @@
 ## Unreleased
 
 ### <!-- 0 -->🚀 Features
-- add cron expression parsing functionality [[efb53f11](https://github.com/HovorunBot/hv-utils/commit/efb53f11c9aea0c12339f0e40bb42d93ad9b1d06)]
+- add cron expression parsing functionality [[2f9eda06](https://github.com/HovorunBot/hv-utils/commit/2f9eda06f986e7d1f0e4373804d528350f9d528d)]
 
 ### <!-- 10 -->💼 Other
 - add CI workflow for testing, linting, and type checking [[bd7b1530](https://github.com/HovorunBot/hv-utils/commit/bd7b153017616c7d266a2ddb4583ad0c62fb6787)]
