@@ -113,6 +113,9 @@ The following constraints are **non-negotiable** and govern all generated code a
   ** before proceeding.
 * **Handling Bug Fixes:** If the task is a bug fix, the agent **must** follow TDD: write a minimal failing test first,
   then provide the minimal fix.
+* **README updates:** Whenever a new utility or extra is introduced, update `README.md` accordingly: list any new extras
+  in the Extras section, add concise usage documentation or examples for the new utility, and adjust install guidance if
+  package extras change.
 
 ---
 

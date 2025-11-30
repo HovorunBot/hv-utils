@@ -3,20 +3,38 @@
 Typed utility library for consolidating reusable Python helpers. The project is in early alpha; the current public
 surface includes the cron expression parser (`parse_cron`) exported from `hv_utils.__init__`.
 
-## What you need
+## Requirements
 
-- Python 3.12+. Keep 3.13 and 3.14 available if you want to run the full matrix locally.
-- [uv](https://docs.astral.sh/uv/) for dependency management.
-- Runtime stays standard-library only; dev tools live in the `dev` dependency group.
+- Use: Python 3.12+; install from PyPI with pip/uv/Poetry (see install commands below); no external runtime
+  dependencies.
+
+## Install
+
+- pip: `pip install hv-utils` (extras: `pip install hv-utils[cron]` or `pip install hv-utils[all]`)
+- uv: `uv add hv-utils` (extras: `uv add 'hv-utils[cron]'` or `uv add 'hv-utils[all]'`)
+- Poetry: `poetry add hv-utils` (extras: `poetry add hv-utils -E cron` or `poetry add hv-utils -E all`)
+
+### Extras
+
+| Extra  | Includes       | Purpose                           |
+|--------|----------------|-----------------------------------|
+| `cron` | Cron utilities | Parse and match cron expressions. |
+| `all`  | All extras     | Convenience meta-extra.           |
 
 ## Quick start
 
-- Install dev tools: `uv sync --group dev`
-- Ensure you work from the repo root so `src/` is discoverable.
-- Try it out:
-    - Cron parse: `uv run python - <<'PY'\nfrom hv_utils import parse_cron\nprint(parse_cron('*/15 0-12/6 1,15 1-3 MON-FRI'))\nPY`
-    - Cron match: `uv run python - <<'PY'\nfrom datetime import UTC, datetime\nfrom hv_utils import cron_matches\nprint(cron_matches('0 12 15 * 1', datetime(2025, 1, 13, 12, 0, tzinfo=UTC)))\nPY`
-- Extras: install cron utilities via `pip install hv-utils[cron]` (or `hv-utils[all]` for all extras; currently the same set).
+- Install: `pip install hv-utils` (or add an extra such as `pip install hv-utils[cron]`).
+- Use:
+
+```python
+from datetime import UTC, datetime
+
+from hv_utils import cron_matches, parse_cron
+
+schedule = parse_cron("*/15 0-12/6 1,15 1-3 MON-FRI")
+print(schedule.minute)  # (0, 15, 30, 45)
+print(cron_matches(schedule, datetime(2025, 1, 13, 12, 0, tzinfo=UTC)))
+```
 
 ## Cron utility
 
@@ -32,8 +50,15 @@ surface includes the cron expression parser (`parse_cron`) exported from `hv_uti
     - `CronSchedule.matches(dt: datetime) -> bool` — instance wrapper over `cron_matches`.
     - `CronSchedule.next(start: datetime, *, inclusive: bool = False, max_lookahead_days: int = 366) -> datetime` —
       returns the next occurrence after `start`, optionally including `start`, bounded by `max_lookahead_days`.
-    - `CronSchedule.iter(start: datetime, *, inclusive: bool = False, max_lookahead_days: int = 366) -> Iterable[datetime]`
-      — yields successive matching datetimes; callers should consume responsibly to avoid unbounded iteration.
+    -
+    `CronSchedule.iter(start: datetime, *, inclusive: bool = False, max_lookahead_days: int = 366) -> Iterable[datetime]`
+    — yields successive matching datetimes; callers should consume responsibly to avoid unbounded iteration.
+
+## Development requirements
+
+- Python 3.12+ for development; optionally install 3.13/3.14 to run the full test matrix.
+- [uv](https://docs.astral.sh/uv/) for dependency management; sync dev tools via `uv sync --group dev`.
+- Pre-commit hooks available; install with `pre-commit install`.
 
 ## How we work
 
@@ -61,18 +86,22 @@ surface includes the cron expression parser (`parse_cron`) exported from `hv_uti
 ## Changelog
 
 - Generate/update `CHANGELOG.md` from conventional commits with git-cliff (dev dependency):
-  - Preview unreleased notes: `uv run --locked --group dev git-cliff --config pyproject.toml --unreleased`
-  - Write the changelog file: `uv run --locked --group dev git-cliff --config pyproject.toml --unreleased --output CHANGELOG.md`
+    - Preview unreleased notes: `uv run --locked --group dev git-cliff --config pyproject.toml --unreleased`
+    - Write the changelog file:
+      `uv run --locked --group dev git-cliff --config pyproject.toml --unreleased --output CHANGELOG.md`
 
 ## Pre-commit
 
 - Install hooks: `pre-commit install` (uses your machine-level pre-commit)
 - Run all hooks manually: `pre-commit run --all-files`
-- Hooks auto-add the BSD-3 header (via `python -m tools.copyright_header`), then run the same uv-powered format, lint, type-check, and test commands listed above.
+- Hooks auto-add the BSD-3 header (via `python -m tools.copyright_header`), then run the same uv-powered format, lint,
+  type-check, and test commands listed above.
 
 ## Contributing
 
 - Keep PRs small and focused on one utility or fix.
 - Add tests, docstrings, and `__init__` exports alongside new utilities.
 - Run format, lint, mypy, and pytest before opening a PR; for compatibility-sensitive changes, run the full matrix.
-- Note: uv commands may need escalated permission in some environments. I will ask for escalation before running `uv` so tasks can proceed. The uv cache directory is already configured in `pyproject.toml`; no need to set `UV_CACHE_DIR` manually.
+- Note: uv commands may need escalated permission in some environments. I will ask for escalation before running `uv` so
+  tasks can proceed. The uv cache directory is already configured in `pyproject.toml`; no need to set `UV_CACHE_DIR`
+  manually.
