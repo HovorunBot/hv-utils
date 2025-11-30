@@ -5,16 +5,37 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write
+  id-token: write
+
 jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
+    env:
+      RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN != '' && secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0   # required so git-cliff can see full history
+
+      - name: Validate tag matches project version
+        run: |
+          python - <<'PY'
+          from __future__ import annotations
+
+          import tomllib
+          from pathlib import Path
+          import os
+
+          tag = os.environ["GITHUB_REF_NAME"].removeprefix("v")
+          version = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+          if tag != version:
+              raise SystemExit(f"Tag {tag} does not match project version {version}")
+          PY
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
@@ -31,11 +52,15 @@ jobs:
           uv run --locked --group dev git-cliff --config pyproject.toml \
             --tag "${GITHUB_REF_NAME}" > CHANGELOG.md
 
+      - name: Build distributions
+        run: uv build
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: "Release ${{ github.ref_name }}"
           body_path: CHANGELOG.md
+          files: dist/*
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ env.RELEASE_TOKEN }}

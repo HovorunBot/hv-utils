@@ -6,11 +6,6 @@ repos:
         entry: uv run --locked --group dev python -m tools.copyright_header
         language: system
         pass_filenames: false
-      - id: changelog
-        name: changelog (git-cliff)
-        entry: uv run --locked --group dev git-cliff --config pyproject.toml --unreleased --output CHANGELOG.md
-        language: system
-        pass_filenames: false
       - id: format
         name: format (ruff)
         entry: uv run --locked --group dev ruff format .

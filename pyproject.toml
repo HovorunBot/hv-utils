@@ -111,6 +111,7 @@ body = """
 {% endif %}
 """
 trim = true
+unreleased = false
 footer = "\n"
 
 [tool.git-cliff.git]
