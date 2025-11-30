@@ -75,3 +75,4 @@ surface includes the cron expression parser (`parse_cron`) exported from `hv_uti
 - Keep PRs small and focused on one utility or fix.
 - Add tests, docstrings, and `__init__` exports alongside new utilities.
 - Run format, lint, mypy, and pytest before opening a PR; for compatibility-sensitive changes, run the full matrix.
+- Note: uv commands may need escalated permission in some environments. I will ask for escalation before running `uv` so tasks can proceed. The uv cache directory is already configured in `pyproject.toml`; no need to set `UV_CACHE_DIR` manually.

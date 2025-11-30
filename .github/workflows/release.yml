@@ -23,19 +23,7 @@ jobs:
           fetch-depth: 0   # required so git-cliff can see full history
 
       - name: Validate tag matches project version
-        run: |
-          python - <<'PY'
-          from __future__ import annotations
-
-          import tomllib
-          from pathlib import Path
-          import os
-
-          tag = os.environ["GITHUB_REF_NAME"].removeprefix("v")
-          version = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
-          if tag != version:
-              raise SystemExit(f"Tag {tag} does not match project version {version}")
-          PY
+        run: uv run python -m tools.release_tag --tag "${GITHUB_REF_NAME}"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6

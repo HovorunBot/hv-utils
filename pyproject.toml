@@ -91,6 +91,9 @@ source = ["hv_utils"]
 [tool.coverage.report]
 show_missing = true
 
+[tool.uv]
+cache-dir = ".uv-cache"
+
 [tool.git-cliff.changelog]
 header = "# Changelog\n"
 body = """
