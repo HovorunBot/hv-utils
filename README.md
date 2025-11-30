@@ -1,7 +1,8 @@
 # hv-utils
 
 Typed utility library for consolidating reusable Python helpers. The project is in early alpha; the current public
-surface includes the cron expression parser (`parse_cron`) exported from `hv_utils.__init__`.
+surface includes the cron expression parser (`parse_cron`) and expiration helpers (`Expiration`, `ExpiresIn`,
+`ExpiresAfter`, `ExpiresAtTS`, `ExpiresAtDT`).
 
 ## Requirements
 
@@ -10,16 +11,9 @@ surface includes the cron expression parser (`parse_cron`) exported from `hv_uti
 
 ## Install
 
-- pip: `pip install hv-utils` (extras: `pip install hv-utils[cron]` or `pip install hv-utils[all]`)
-- uv: `uv add hv-utils` (extras: `uv add 'hv-utils[cron]'` or `uv add 'hv-utils[all]'`)
-- Poetry: `poetry add hv-utils` (extras: `poetry add hv-utils -E cron` or `poetry add hv-utils -E all`)
-
-### Extras
-
-| Extra  | Includes       | Purpose                           |
-|--------|----------------|-----------------------------------|
-| `cron` | Cron utilities | Parse and match cron expressions. |
-| `all`  | All extras     | Convenience meta-extra.           |
+- pip: `pip install hv-utils`
+- uv: `uv add hv-utils`
+- Poetry: `poetry add hv-utils`
 
 ## Quick start
 
@@ -27,22 +21,26 @@ surface includes the cron expression parser (`parse_cron`) exported from `hv_uti
 - Use:
 
 ```python
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
-from hv_utils import cron_matches, parse_cron
+from hv_utils.cron import cron_matches, parse_cron
+from hv_utils.expiration import ExpiresAfter
 
 schedule = parse_cron("*/15 0-12/6 1,15 1-3 MON-FRI")
 print(schedule.minute)  # (0, 15, 30, 45)
 print(cron_matches(schedule, datetime(2025, 1, 13, 12, 0, tzinfo=UTC)))
+
+expires = ExpiresAfter(ttl=timedelta(hours=1), since=datetime.now(tz=UTC))
+print(expires.as_ttl())  # Remaining time before expiration, clamped to zero
 ```
 
 ## Cron utility
 
-- Parse: `hv_utils.parse_cron(expression: str) -> CronSchedule` — expands a 5-field cron string into concrete minute,
+- Parse: `hv_utils.cron.parse_cron(expression: str) -> CronSchedule` — expands a 5-field cron string into concrete minute,
   hour, day-of-month, month, and day-of-week tuples. Supports literals, ranges, steps (`*/n`), comma lists, and
   case-insensitive month/day names. Day-of-week treats both `0` and `7` as Sunday; invalid input raises `ValueError`
   with a consistent message.
-- Match: `hv_utils.cron_matches(expression: str | CronSchedule, when: datetime) -> bool` — checks whether a datetime
+- Match: `hv_utils.cron.cron_matches(expression: str | CronSchedule, when: datetime) -> bool` — checks whether a datetime
   satisfies a schedule. Day-of-month and day-of-week use cron OR semantics: if both are restricted, a match occurs when
   either field matches (all other fields must also match). If one is a wildcard, only the other is considered.
 - Schedule helpers:
@@ -53,6 +51,16 @@ print(cron_matches(schedule, datetime(2025, 1, 13, 12, 0, tzinfo=UTC)))
     -
     `CronSchedule.iter(start: datetime, *, inclusive: bool = False, max_lookahead_days: int = 366) -> Iterable[datetime]`
     — yields successive matching datetimes; callers should consume responsibly to avoid unbounded iteration.
+
+## Expiration utilities
+
+- Interfaces: `Expiration` standardizes conversion to timestamp (`as_timestamp()`), datetime (`as_datetime(tz=UTC)`), and
+  remaining TTL (`as_ttl()`).
+- Relative TTL: `ExpiresIn` computes expiration relative to the call time; TTL is constant because the target is always
+  "now + ttl".
+- Anchored TTL: `ExpiresAfter` adds a TTL to a timezone-aware start datetime and clamps negative TTL to zero.
+- Absolute: `ExpiresAtTS` targets a Unix timestamp; `ExpiresAtDT` targets a timezone-aware datetime. Both clamp expired
+  TTLs to zero.
 
 ## Development requirements
 
@@ -82,13 +90,6 @@ print(cron_matches(schedule, datetime(2025, 1, 13, 12, 0, tzinfo=UTC)))
     - `uv run --python 3.12 pytest`
     - `uv run --python 3.13 pytest`
     - `uv run --python 3.14 pytest`
-
-## Changelog
-
-- Generate/update `CHANGELOG.md` from conventional commits with git-cliff (dev dependency):
-    - Preview unreleased notes: `uv run --locked --group dev git-cliff --config pyproject.toml --unreleased`
-    - Write the changelog file:
-      `uv run --locked --group dev git-cliff --config pyproject.toml --unreleased --output CHANGELOG.md`
 
 ## Pre-commit
 

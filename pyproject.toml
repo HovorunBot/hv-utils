@@ -1,6 +1,6 @@
 [project]
 name = "hv-utils"
-version = "0.0.1.1"
+version = "0.0.2"
 description = "Simple library to keep useful Python utilities in one place."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -21,10 +21,6 @@ classifiers = [
 ]
 dependencies = []
 
-[project.optional-dependencies]
-cron = []
-all = []
-
 [project.urls]
 Homepage = "https://github.com/HovorunBot/hv-utils"
 Repository = "https://github.com/HovorunBot/hv-utils"
@@ -33,6 +29,7 @@ Issues = "https://github.com/HovorunBot/hv-utils/issues"
 [dependency-groups]
 dev = [
     "click>=8.1.7",
+    "freezegun>=1.5.1",
     "git-cliff>=2.10.1",
     "mypy>=1.12.0",
     "pre-commit>=3.8.0",
@@ -56,7 +53,7 @@ select = ["ALL"]
 ignore = [
     "COM812", # clash with formatter
     "D100", # allow missing package docstring
-    "D213", # prefer multi-line summary first line style
+    "D213", # prefer a multi-line summary-first-line style
     "D104", # allow missing package docstring
     "D203", # prefer no blank line before class
     "D211", # prefer no blank line before class

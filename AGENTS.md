@@ -57,12 +57,12 @@ The following constraints are **non-negotiable** and govern all generated code a
 
 * **Import Rules:**
     * **Absolute Imports Only.** **No relative imports** are allowed anywhere in the library.
-    * **Public Exposure:** The package's **`__init__.py`** file must expose all public interfaces. Other modules
-      importing utilities **must** import exclusively from the package's top-level public interface (i.e.,
-      `from hv_utils.package import utility`).
-    * **Tooling Scripts:** Repository maintenance/automation helpers live in the root-level `tools/` package and
-      should be invoked via `python -m tools.<module>`. Keep them standard-library only, fully typed, and using
-      absolute imports.
+    * **Public Exposure:** Do not re-export utilities from `__init__.py` unless explicitly requested. Keep utilities in
+      their submodules (e.g., `hv_utils.cron`, `hv_utils.expiration`), and document expected import paths in README
+      when APIs move.
+    * **Tooling Scripts:** Repository maintenance/automation helpers live in the root-level `tools/` package and should
+      be invoked via `python -m tools.<module>`. Keep them standard-library only, fully typed, and using absolute
+      imports.
 
 * **Testing (TDD Workflow):**
     * **TDD Enforcement:** The agent **must** start with test cases for the target logic. If the agent is unsure of the
