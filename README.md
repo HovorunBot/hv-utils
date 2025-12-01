@@ -21,10 +21,12 @@ surface includes the cron expression parser (`parse_cron`) and expiration helper
 - Use:
 
 ```python
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
 from hv_utils.cron import cron_matches, parse_cron
 from hv_utils.expiration import ExpiresAfter
+from hv_utils.sentinel import MISSING
 
 schedule = parse_cron("*/15 0-12/6 1,15 1-3 MON-FRI")
 print(schedule.minute)  # (0, 15, 30, 45)
@@ -32,6 +34,16 @@ print(cron_matches(schedule, datetime(2025, 1, 13, 12, 0, tzinfo=UTC)))
 
 expires = ExpiresAfter(ttl=timedelta(hours=1), since=datetime.now(tz=UTC))
 print(expires.as_ttl())  # Remaining time before expiration, clamped to zero
+
+
+@dataclass
+class Payload:
+    data: object = MISSING
+
+
+payload = Payload()
+if payload.data is MISSING:
+    print("Data not provided yet")
 ```
 
 ## Cron utility
@@ -61,6 +73,11 @@ print(expires.as_ttl())  # Remaining time before expiration, clamped to zero
 - Anchored TTL: `ExpiresAfter` adds a TTL to a timezone-aware start datetime and clamps negative TTL to zero.
 - Absolute: `ExpiresAtTS` targets a Unix timestamp; `ExpiresAtDT` targets a timezone-aware datetime. Both clamp expired
   TTLs to zero.
+
+## Sentinel utility
+
+- `MISSING` — singleton sentinel typed as `Any`, falsy, and raises `AttributeError` on attribute access. Useful for
+  distinguishing omitted values from explicit `None` in dataclasses and function defaults.
 
 ## Development requirements
 

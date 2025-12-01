@@ -163,3 +163,10 @@ of the code**" or similar phrasing requesting instruction modification, the agen
        example from the codebase if possible.
     2. **Proposed Fix:** The exact markdown text to be added or replaced in `agents.md`, specifying the **Section and
        Bullet Point** to modify.
+
+---
+
+## 8. 📤 Response Content Limits
+
+- Never include full generated or modified file contents in responses. Summarize changes at a high level and reference
+  the relevant file paths (with line hints if useful) instead.
