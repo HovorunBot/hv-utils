@@ -1,7 +1,7 @@
 [project]
 name = "hv-utils"
 version = "0.1.0"
-description = "Typed, dependency-free utilities for env parsing, cron schedules, expiration handling, and sentinels."
+description = "Typed, dependency-free utilities for the everyday tasks you keep re-implementing in every project."
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [

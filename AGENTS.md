@@ -103,6 +103,8 @@ The following constraints are **non-negotiable** and govern all generated code a
 * **Quality Gates & Tool Execution:** All static analysis and tests must be executed using `uv run`. Mandatory checks
   that must **PASS** include: `ruff check --fix`, `ruff format`, `uv run mypy`, and `uv run pytest` (must pass for all
   supported Python versions: **3.12, 3.13, 3.14**).
+* **UV Command Approval:** Always ask for explicit user permission before running any `uv run ...` command, regardless
+  of context or prior runs.
 * **Optional Dependency Testing:** For any utility using optional dependencies, a corresponding test must be created to
   assert that the **`try...except ImportError`** guard functions correctly when the dependency is missing.
 * **Commit/Push Boundary:** The agent **must not** execute any Git commands (e.g., commit, push) on its own. The agent

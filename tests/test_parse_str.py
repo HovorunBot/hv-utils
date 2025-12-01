@@ -83,6 +83,7 @@ def test_parse_enum_accepts_names_and_values() -> None:
     """parse_enum resolves enum members by name or value."""
     assert parse_enum("RED", Color) is Color.RED
     assert parse_enum("blue", Color) is Color.BLUE
+    assert parse_enum("  RED  ", Color) is Color.RED
     with pytest.raises(ValueError, match="Invalid Color literal: 'green'"):
         parse_enum("green", Color)
 

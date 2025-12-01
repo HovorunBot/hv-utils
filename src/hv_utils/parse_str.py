@@ -182,12 +182,13 @@ def parse_enum[E: Enum](value: str, enum_type: type[E]) -> E:
         ValueError: If the value does not correspond to any member.
 
     """
+    normalized = value.strip()
     try:
-        return enum_type[value]
+        return enum_type[normalized]
     except KeyError:
         pass
     try:
-        return enum_type(value)
+        return enum_type(normalized)
     except (ValueError, TypeError) as exc:
         message = f"Invalid {enum_type.__name__} literal: {value!r}"
         raise ValueError(message) from exc
