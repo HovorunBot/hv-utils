@@ -1,8 +1,12 @@
 # hv-utils
 
-Typed utility library for consolidating reusable Python helpers. The project is in early alpha; the current public
-surface includes the cron expression parser (`parse_cron`) and expiration helpers (`Expiration`, `ExpiresIn`,
-`ExpiresAfter`, `ExpiresAtTS`, `ExpiresAtDT`).
+Typed, dependency-free utilities for the everyday tasks you keep re-implementing in every project.
+
+Includes:
+• Environment & string parsing
+• Cron expression evaluation
+• Expiration & time-based policies
+• Sentinel primitives (MISSING)
 
 ## Requirements
 
@@ -25,12 +29,20 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
 from hv_utils.cron import cron_matches, parse_cron
+from hv_utils.parse_env import env_bool, env_int, env_list
+from hv_utils.parse_str import parse_bytes_size
 from hv_utils.expiration import ExpiresAfter
 from hv_utils.sentinel import MISSING
 
 schedule = parse_cron("*/15 0-12/6 1,15 1-3 MON-FRI")
 print(schedule.minute)  # (0, 15, 30, 45)
 print(cron_matches(schedule, datetime(2025, 1, 13, 12, 0, tzinfo=UTC)))
+
+# Parse environment variables with rich casting and defaults
+debug = env_bool("DEBUG", default=False)
+workers = env_int("WORKERS", default=4)
+hosts = env_list("HOSTS", env={"HOSTS": "a.example.com,b.example.com"})
+max_upload_bytes = parse_bytes_size("10MB")
 
 expires = ExpiresAfter(ttl=timedelta(hours=1), since=datetime.now(tz=UTC))
 print(expires.as_ttl())  # Remaining time before expiration, clamped to zero
@@ -48,11 +60,13 @@ if payload.data is MISSING:
 
 ## Cron utility
 
-- Parse: `hv_utils.cron.parse_cron(expression: str) -> CronSchedule` — expands a 5-field cron string into concrete minute,
+- Parse: `hv_utils.cron.parse_cron(expression: str) -> CronSchedule` — expands a 5-field cron string into concrete
+  minute,
   hour, day-of-month, month, and day-of-week tuples. Supports literals, ranges, steps (`*/n`), comma lists, and
   case-insensitive month/day names. Day-of-week treats both `0` and `7` as Sunday; invalid input raises `ValueError`
   with a consistent message.
-- Match: `hv_utils.cron.cron_matches(expression: str | CronSchedule, when: datetime) -> bool` — checks whether a datetime
+- Match: `hv_utils.cron.cron_matches(expression: str | CronSchedule, when: datetime) -> bool` — checks whether a
+  datetime
   satisfies a schedule. Day-of-month and day-of-week use cron OR semantics: if both are restricted, a match occurs when
   either field matches (all other fields must also match). If one is a wildcard, only the other is considered.
 - Schedule helpers:
@@ -61,12 +75,13 @@ if payload.data is MISSING:
     - `CronSchedule.next(start: datetime, *, inclusive: bool = False, max_lookahead_days: int = 366) -> datetime` —
       returns the next occurrence after `start`, optionally including `start`, bounded by `max_lookahead_days`.
     -
-    `CronSchedule.iter(start: datetime, *, inclusive: bool = False, max_lookahead_days: int = 366) -> Iterable[datetime]`
-    — yields successive matching datetimes; callers should consume responsibly to avoid unbounded iteration.
+  `CronSchedule.iter(start: datetime, *, inclusive: bool = False, max_lookahead_days: int = 366) -> Iterable[datetime]`
+  — yields successive matching datetimes; callers should consume responsibly to avoid unbounded iteration.
 
 ## Expiration utilities
 
-- Interfaces: `Expiration` standardizes conversion to timestamp (`as_timestamp()`), datetime (`as_datetime(tz=UTC)`), and
+- Interfaces: `Expiration` standardizes conversion to timestamp (`as_timestamp()`), datetime (`as_datetime(tz=UTC)`),
+  and
   remaining TTL (`as_ttl()`).
 - Relative TTL: `ExpiresIn` computes expiration relative to the call time; TTL is constant because the target is always
   "now + ttl".
@@ -78,6 +93,19 @@ if payload.data is MISSING:
 
 - `MISSING` — singleton sentinel typed as `Any`, falsy, and raises `AttributeError` on attribute access. Useful for
   distinguishing omitted values from explicit `None` in dataclasses and function defaults.
+
+## Environment parsing
+
+- Parsing is split into two related layers:
+    - **String parsers (`hv_utils.parse_str`)**: reusable string-to-value helpers such as `parse_bool`, `parse_int`,
+      `parse_float`, `parse_decimal`, `parse_enum`, `parse_path`, `parse_url`, `parse_timedelta`, `parse_datetime`,
+      `parse_bytes_size`, `parse_list`, `parse_set`, `parse_mapping`, `parse_json`, `parse_json_typed`,
+      `parse_base64_bytes`, `parse_base64_str`.
+    - **Env wrappers (`hv_utils.parse_env`)**: environment-aware helpers that wrap the string parsers:
+      `env_str`, `env_bool`, `env_int`, `env_float`, `env_decimal`, `env_enum`, `env_path`, `env_url`, `env_timedelta`,
+      `env_datetime`, `env_list`, `env_set`, `env_mapping`, `env_json`, `env_base64_bytes`, `env_base64_str`.
+- Common knobs: ``default`` supplies a fallback for missing/invalid values, while ``required=True`` raises
+  `ValueError` instead of returning a default. All wrappers accept an optional `env` mapping for testing.
 
 ## Development requirements
 

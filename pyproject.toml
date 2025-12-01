@@ -1,7 +1,7 @@
 [project]
 name = "hv-utils"
-version = "0.0.2.post1"
-description = "Simple library to keep useful Python utilities in one place."
+version = "0.1.0"
+description = "Typed, dependency-free utilities for env parsing, cron schedules, expiration handling, and sentinels."
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
@@ -10,7 +10,7 @@ authors = [
 requires-python = ">=3.12"
 keywords = ["utilities", "helpers", "hv-utils"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: BSD License",
     "Programming Language :: Python :: 3",

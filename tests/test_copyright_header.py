@@ -8,6 +8,7 @@
 #  Contributions:
 #     - TwilightSparkle42 — general maintenance
 # -----------------------------------------------------------------------------
+"""Tests for enforcing the BSD 3-Clause header insertion utility."""
 
 from pathlib import Path
 

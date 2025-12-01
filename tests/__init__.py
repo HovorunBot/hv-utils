@@ -8,3 +8,4 @@
 #  Contributions:
 #     - TwilightSparkle42 — general maintenance
 # -----------------------------------------------------------------------------
+"""Test package marker for hv-utils."""
