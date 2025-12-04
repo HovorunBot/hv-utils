@@ -3,7 +3,6 @@ name: Release and Publish
 on:
   push:
     tags:
-      - "v*"        # v0.0.1, v1.2.3a1, etc.
       - "*.*.*"     # 0.0.1, 1.2.3
       - "*.*.*.*"   # 0.0.1.1, 1.2.3.4
 permissions:
@@ -19,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: "actions/checkout@v4"
         with:
           fetch-depth: 0   # required so git-cliff can see full history
 
@@ -32,15 +31,27 @@ jobs:
       - name: Validate tag matches project version
         run: uv run python -m tools.release_tag --tag "${GITHUB_REF_NAME}"
 
-      - name: Install dev dependencies (including git-cliff)
+      - name: Install dev dependencies (including commitizen)
         run: uv sync --locked --group dev
 
-      - name: Generate changelog with git-cliff
-        id: cliff
+      - name: Determine previous tag
+        id: prev_tag
         run: |
-          uv run --locked --group dev git-cliff \
-            --config pyproject.toml \
-            --tag "${GITHUB_REF_NAME}" > CHANGELOG.md
+          PREV_TAG="$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)"
+          echo "prev_tag=${PREV_TAG}" >> "$GITHUB_OUTPUT"
+          CURRENT_VERSION="${GITHUB_REF_NAME#v}"
+          PREV_VERSION="${PREV_TAG#v}"
+          echo "current_version=${CURRENT_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "prev_version=${PREV_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate changelog with commitizen
+        run: |
+          if [ -n "${{ steps.prev_tag.outputs.prev_tag }}" ]; then
+            RANGE="${{ steps.prev_tag.outputs.prev_version }}..${{ steps.prev_tag.outputs.current_version }}"
+          else
+            RANGE="${{ steps.prev_tag.outputs.current_version }}"
+          fi
+          uv run --locked --group dev cz changelog "$RANGE"
 
       - name: Build distributions
         run: uv build
@@ -53,7 +64,12 @@ jobs:
       - name: Prepare release notes with PyPI link
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          cp CHANGELOG.md RELEASE_NOTES.md
+          if [ -n "${{ steps.prev_tag.outputs.prev_tag }}" ]; then
+            RANGE="${{ steps.prev_tag.outputs.prev_version }}..${{ steps.prev_tag.outputs.current_version }}"
+          else
+            RANGE="${{ steps.prev_tag.outputs.current_version }}"
+          fi
+          uv run --locked --group dev cz changelog "$RANGE" --dry-run > RELEASE_NOTES.md
           {
             echo ""
             echo "PyPI: https://pypi.org/project/hv-utils/${VERSION}/"

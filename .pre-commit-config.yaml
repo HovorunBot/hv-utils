@@ -41,8 +41,8 @@ repos:
         language: system
         entry: uv sync --locked --python 3.12
         pass_filenames: false
-  - repo: https://github.com/compilerla/conventional-pre-commit
-    rev: v3.1.0
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v4.10.1
     hooks:
-      - id: conventional-pre-commit
+      - id: commitizen
         stages: [commit-msg]
