@@ -31,7 +31,7 @@ dev = [
     "click>=8.1.7",
     "commitizen>=3.29.0",
     "freezegun>=1.5.1",
-    "mypy>=1.12.0",
+    "ty>=0.0.7",
     "pre-commit>=3.8.0",
     "pytest>=8.3.3",
     "pytest-cov>=5.0.0",
@@ -68,18 +68,15 @@ per-file-ignores = { "tests/*" = [
 [tool.ruff.lint.flake8-copyright]
 notice-rgx = "Copyright \\(c\\) [0-9]{4}"
 
-[tool.mypy]
-python_version = "3.12"
-strict = true
-mypy_path = "."
-disallow_any_unimported = true
-show_error_codes = true
-show_error_context = true
-pretty = true
 
 [tool.pytest.ini_options]
 addopts = ["-ra", "--strict-markers", "--strict-config"]
 testpaths = ["tests"]
+
+[tool.ty.environment]
+python-version = "3.12"
+root = ["./src", "./tests", "./tools"]
+extra-paths = ["src", "."]
 
 [tool.coverage.run]
 branch = true
@@ -96,7 +93,7 @@ name = "cz_conventional_commits"
 version = "0.1.0"
 tag_format = "$version"
 legacy_tag_formats = ["v$version"]
-ignored_tag_foapprovrmats = ["*.*.*.*", "*.post*"]
+ignored_tag_formats = ["*.*.*.*", "*.post*"]
 version_scheme = "pep440"
 version_provider = "pep621"
 changelog_file = "CHANGELOG.md"

@@ -119,7 +119,7 @@ if payload.data is MISSING:
 - Standard library only at runtime. If an optional dependency is unavoidable, add an extra in `pyproject.toml`, guard
   the import with `try/except ImportError`, and raise a friendly install hint.
 - Absolute imports only. Expose public helpers from `src/hv_utils/__init__.py`.
-- Always type everything and keep `mypy --strict` green.
+- Always type everything and keep `ty` green.
 - TDD over heroics: write or update tests before implementing behavior, cover edge cases, and keep functions small and
   composable.
 - Follow `ruff`/PEP 8 style (line length 120).
@@ -128,7 +128,7 @@ if payload.data is MISSING:
 
 - Format: `uv run ruff format .`
 - Lint (autofix): `uv run ruff check --fix .`
-- Type-check: `uv run mypy src tests`
+- Type-check: `uv run ty check src tests tools`
 - Tests (current Python): `uv run pytest`
 - Tests on a specific interpreter: `uv run --python 3.13 pytest`
 - Full matrix (requires those interpreters installed):
@@ -147,7 +147,7 @@ if payload.data is MISSING:
 
 - Keep PRs small and focused on one utility or fix.
 - Add tests, docstrings, and `__init__` exports alongside new utilities.
-- Run format, lint, mypy, and pytest before opening a PR; for compatibility-sensitive changes, run the full matrix.
+- Run format, lint, ty, and pytest before opening a PR; for compatibility-sensitive changes, run the full matrix.
 - Note: uv commands may need escalated permission in some environments. I will ask for escalation before running `uv` so
   tasks can proceed. The uv cache directory is already configured in `pyproject.toml`; no need to set `UV_CACHE_DIR`
   manually.

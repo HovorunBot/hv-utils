@@ -21,7 +21,7 @@ from __future__ import annotations
 import os
 from collections.abc import Callable, Mapping
 from enum import Enum
-from typing import TYPE_CHECKING, NoReturn, cast
+from typing import TYPE_CHECKING, Any, NoReturn
 
 from hv_utils.parse_str import (
     ItemCast,
@@ -77,11 +77,11 @@ __all__ = [
     "raise_error",
 ]
 
-type CastFn[T] = Callable[[str], T]
-type ErrorHandler[T] = Callable[[str, str | None, CastFn[T] | None], T | None]
+type CastFn = Callable[[str], Any]
+type ErrorHandler = Callable[[str, str | None, CastFn | None], Any | None]
 
 
-def raise_error[T](name: str, value: str | None = None, _cast: CastFn[T] | None = None) -> NoReturn:
+def raise_error(name: str, value: str | None = None, _cast: CastFn | None = None) -> NoReturn:
     """Raise a :class:`ValueError` describing the missing or invalid value.
 
     Args:
@@ -97,7 +97,7 @@ def raise_error[T](name: str, value: str | None = None, _cast: CastFn[T] | None 
     raise ValueError(msg)
 
 
-def on_error_return_value[T](value: T | None) -> ErrorHandler[T]:
+def on_error_return_value[T](value: T | None) -> ErrorHandler:
     """Return an error handler that yields the provided value on failure.
 
     Useful when an environment variable is optional and a static fallback is acceptable.
@@ -110,7 +110,7 @@ def on_error_return_value[T](value: T | None) -> ErrorHandler[T]:
 
     """
 
-    def _on_error(_name: str, _value: str | None = None, _cast: CastFn[T] | None = None) -> T | None:
+    def _on_error(_name: str, _value: str | None = None, _cast: CastFn | None = None) -> T | None:
         return value
 
     return _on_error
@@ -119,10 +119,10 @@ def on_error_return_value[T](value: T | None) -> ErrorHandler[T]:
 def get_env[T](
     name: str,
     *,
-    cast: CastFn[T],
+    cast: Callable[[str], T],
     default: T | None = MISSING,
     env: Mapping[str, str] | None = None,
-    on_error: ErrorHandler[T] = raise_error,
+    on_error: ErrorHandler = raise_error,
 ) -> T | None:
     """Fetch and cast an environment variable with configurable error handling.
 
@@ -158,7 +158,7 @@ def get_env[T](
         return on_error(name, raw, cast)
 
 
-def env_or_none[T](name: str, *, cast: CastFn[T], env: Mapping[str, str] | None = None) -> T | None:
+def env_or_none[T](name: str, *, cast: Callable[[str], T], env: Mapping[str, str] | None = None) -> T | None:
     """Return the cast environment variable or ``None`` when missing or invalid.
 
     Args:
@@ -173,7 +173,9 @@ def env_or_none[T](name: str, *, cast: CastFn[T], env: Mapping[str, str] | None 
     return get_env(name, cast=cast, default=None, env=env, on_error=on_error_return_value(None))
 
 
-def env_or_default[T](name: str, *, cast: CastFn[T], default: T, env: Mapping[str, str] | None = None) -> T | None:
+def env_or_default[T](
+    name: str, *, cast: Callable[[str], T], default: T, env: Mapping[str, str] | None = None
+) -> T | None:
     """Return the cast environment variable or a supplied default on failure.
 
     Args:
@@ -404,11 +406,8 @@ def env_json(
         JSONValue | None: Parsed JSON value, provided default, or ``None`` when optional and missing.
 
     """
-
-    def parser(raw: str) -> JSONValue:
-        return parse_json(raw)
-
-    return cast("JSONValue", _env_wrapper(name, parser, default=default, required=required, env=env))
+    parser: Callable[[str], JSONValue] = parse_json
+    return _env_wrapper(name, parser, default=default, required=required, env=env)
 
 
 def env_base64_bytes(
@@ -451,7 +450,7 @@ def env_base64_str(  # noqa: PLR0913
 
 def _env_wrapper[T](
     name: str,
-    parser: CastFn[T],
+    parser: Callable[[str], T],
     *,
     default: T | None,
     required: bool,
@@ -466,6 +465,6 @@ def _env_wrapper[T](
         T | None: Parsed value, provided default, or ``None`` when optional and missing.
 
     """
-    handler: ErrorHandler[T] = raise_error if required else on_error_return_value(default)
+    handler: ErrorHandler = raise_error if required else on_error_return_value(default)
     default_value: T | None = MISSING if required else default
     return get_env(name, cast=parser, default=default_value, env=env, on_error=handler)

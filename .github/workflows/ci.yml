@@ -10,8 +10,6 @@ jobs:
   build:
     name: continuous-integration
     runs-on: ubuntu-latest
-    env:
-      PYTHONPATH: ./src
     strategy:
       matrix:
         python-version:
@@ -41,7 +39,7 @@ jobs:
         run: uv run --locked --group dev ruff check --fix --exit-non-zero-on-fix .
 
       - name: Static type checking
-        run: uv run --locked --group dev mypy .
+        run: uv run --locked --group dev ty check src tests tools
 
       - name: Run tests
         run: uv run --locked --group dev pytest

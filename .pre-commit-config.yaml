@@ -16,9 +16,9 @@ repos:
         entry: uv run --locked --group dev ruff check --fix .
         language: system
         pass_filenames: false
-      - id: mypy
-        name: mypy
-        entry: uv run --locked --group dev mypy --cache-dir .mypy_cache src tests
+      - id: ty
+        name: ty
+        entry: uv run --locked --group dev ty check src tests tools
         language: system
         pass_filenames: false
       - id: tests-py312
